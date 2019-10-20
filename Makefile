@@ -1,6 +1,19 @@
 # Makefile for the Image Processing Project
 #         made by Sandra Bastos
 
+# useful Variables
+
+BLDDIR = objects
+SRCDIR = src
+INCDIR = include
+
+CC = gcc
+SRCEXT = c
+SOURCES = $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BLDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+CFLAGS = -Iinclude
+TARGET = exe
+
 # phony targets ("recipes" to be executed) 
 
 .PHONY: all, build, clean, folders
@@ -20,35 +33,23 @@ build: folders exe
 # ignore nonexistent files and arguments
 
 clean:
-	rm -rf objects
-	rm -f exe
+	rm -rf $(BLDDIR)
+	rm -f $(TARGET)
 
 # "make folders" will create the directory where the compiled
 # objects will go to
 
 folders:
-	mkdir -p objects
+	mkdir -p $(BLDDIR)
 
 # the next targets are referring to the compilation process 
-# of the other .c files besides main 
+# of the all .c files
 
-objects/menu.o: src/menu.c
-	gcc src/menu.c -Iinclude -c -o objects/menu.o
-
-objects/filters.o: src/filters.c
-	gcc src/filters.c -Iinclude -c -o objects/filters.o
-
-objects/util.o: src/util.c
-	gcc src/util.c -Iinclude -c -o objects/util.o
-
-objects/file.o: src/file.c
-	gcc src/file.c -Iinclude -c -o objects/file.o
-
-objects/transform.o: src/transform.c
-	gcc src/transform.c -Iinclude -c -o objects/transform.o
+$(BLDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 # this target has the instructions needed for the compilation
-# of main.c and all the objects previously compiled
+# of all the objects previously compiled
 
-exe: src/main.c objects/menu.o objects/filters.o objects/util.o objects/file.o objects/transform.o
-	gcc src/main.c objects/menu.o objects/filters.o objects/util.o objects/file.o objects/transform.o -Iinclude -o exe
+$(TARGET): $(OBJECTS)
+	$(CC) $^ -o $@ $(CFLAGS)
